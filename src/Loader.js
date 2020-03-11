@@ -1,10 +1,6 @@
 import React from 'react'
 export default () => {
     return (
-        <div className="container">
-            <div className="box1"></div>
-            <div className="box2"></div>
-            <div className="box3"></div>
-        </div>
+        <div className="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
     )
 }

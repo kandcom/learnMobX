@@ -1,6 +1,6 @@
 import './index.css';
 import React, { Component } from 'react';
-import { observable, computed, configure, action, decorate, runInAction } from 'mobx';
+import { observable, computed, configure, action, decorate } from 'mobx';
 import { observer } from 'mobx-react';
 import Loader from './Loader'
 configure({ enforceActions: 'observed' });
@@ -21,11 +21,12 @@ class Store {
         return this.devsList.find( man => {
             if(maxSp === man.sp) return man.name
         })
+        
     };
     get filterDevelopers(){
         const mathesFilter = new RegExp(this.filter, "i");
         return this.devsList.filter( man => {
-            return !this.filter || mathesFilter.test(man.name)
+          return !this.filter || mathesFilter.test(man.name)
         })
     }
     clearList() {
@@ -39,15 +40,11 @@ class Store {
         this.filter = text;
     };
     async getData(){
-      let res = await (await fetch('http://5e58a65711703300147aebf2.mockapi.io/test')).json()
-      //this.setData(res);
-      runInAction(() => {
-        this.datas = res;
-      })
-      
+      let response = await (await fetch('http://5e58a65711703300147aebf2.mockapi.io/test')).json();
+      this.setData(response)
     };
-    setData(res){
-      this.datas = res;
+    setData(data){
+      this.datas = data;
     }
 };
 decorate(Store, {
@@ -61,7 +58,7 @@ decorate(Store, {
     addDeveloper: action('Добавить сотрудника'),
     updateFilter: action('Поиск'),
     getData: action('Получить данные с сервера'),
-    setData:action('Сохраняю в переменной')
+    setData: action('Переменная получила значения')
 })
 const appStore = new Store();
 
@@ -137,13 +134,18 @@ const Row = ({ data: { name, sp } }) => {
         <Controls store={appStore} />
         <Table store={appStore} />
         <hr/>
+        <h2>Те кто ушел от нас)))</h2>
         <div style={styles.div}>
         {
-            appStore.datas ? appStore.datas.map(data => (<div style={styles.item} key={data.id}>
-              <h2>{data.title}</h2>
-              <p>{data.name}</p>
-              <img src={data.avatar}/>
-            </div>)) : <p>download...</p>
+            appStore.datas ? appStore.datas.map( item => {
+              return (
+                <div style={styles.block} key={item.id}>
+                  <h2>{item.title}</h2>
+                  <img src={item.avatar} alt={item.name}/>
+                  <p>{item.name}</p>
+                </div>
+              )
+            }) : <Loader/>
         }
         </div>
       </div>
@@ -153,13 +155,14 @@ const Row = ({ data: { name, sp } }) => {
 const styles = {
   div: {
     display: 'flex',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     alignItems: 'center',
     flexWrap: 'wrap'
-  }, 
-  item:{
-    width: "200px"
+  },
+  block: {
+    width: '200px',
+    height: '300px',
+    textAlign: "center"
   }
 }
 export default App
-//ReactDOM.render(<App/>, document.getElementById('root'));
